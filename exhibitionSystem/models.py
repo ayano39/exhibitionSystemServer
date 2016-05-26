@@ -32,5 +32,5 @@ class user_booth(models.Model):
     booth = models.CharField(max_length=30)
     reached = models.IntegerField(default=0)
     stayTime = models.IntegerField(default=0)
-#hh
+
 # Create your models here.
