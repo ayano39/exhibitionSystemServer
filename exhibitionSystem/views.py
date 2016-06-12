@@ -1,5 +1,12 @@
 from django.shortcuts import render
+import copy
+import os
+os.environ['DJANGO_SETTINGS_MODULE'] = 'exhibitionSystemServer.settings'
+
+from django.core.wsgi import get_wsgi_application
+application = get_wsgi_application()
 from exhibitionSystem.models import *
+from exhibitionSystem.RouteInfo import *
 
 # Create your views here.
 
@@ -136,66 +143,84 @@ def update_intvec(request):
 #方法可以包括，从conn中获取后继fetchson()，计算三层的递归方法trilayer()，计算整个路径getpath(),计算兴趣向量百分比gettheme()，
 
 all_3_route = []
-levelWeight = {"1":"1", "2":"0.5", "3":"0.1"}
+levelWeight = {1:1, 2:0.5, 3:0.1}
 
-def make_route(user_id, booth_id,interests):
-    path = []
- #   interests = user_theme.objects.get(uid = user_id)
-    con_boo_id = booth_conn.objects.get(B1 = booth_id)
-    route_first = RouteInfo(0,path)
-    iteration_3_layers(booth_id, interests, route_first, con_boo_id)
+def make_route(booth_id,interests):
+    path = [booth_id]
+    conboo = booth_conn.objects.filter(B1=booth_id)
+    con_boo_id = get_conn_id(conboo)
+    npath = copy.copy(path)
+    route_first = RouteInfo(0, npath)
+    iteration_3_layers(interests, route_first, con_boo_id)
     max_in_3_layer = get_max_gra()
-    new_con_boo_id = booth_conn.objects.get(B1 = max_in_3_layer.path[-1])
-    final_route = iteration_all_layers(max_in_3_layer.path[-1], interests,  max_in_3_layer, new_con_boo_id)
-    return final_route
-
-def iteration_3_layers(booth_id,interests,route_info,con_boo_id):
-    for booth in list(con_boo_id):
-        booth_theme_grade = get_booth_grades(booth)
-        new_grade = grade_Cal_3(route_info.path.len()+1, interests,booth_theme_grade)
-        new_route_info = RouteInfo(route_info.grade + new_grade,route_info.path)
-        new_route_info.path.append(booth)
-        global all_3_route
-        all_3_route.append(new_route_info)
-        new_con_boo_id = booth_conn.objects.get(B1 = booth)
-        if new_route_info.len() < 4:
-            iteration_3_layers(booth, interests, new_route_info, new_con_boo_id)
-        else:
-            return
-
-def iteration_all_layers(booth_id,interests,route_info,con_boo_id):
-    for booth in list(con_boo_id):
-        booth_theme_grade = get_booth_grades(booth)
-        grades.append(grade_Cal(interests, booth_theme_grade))
-    max_grade = grades.max()
-    max_index = grades.index(max_grade)
-    route_info.path.append(con_boo_id[index])
-    if con_boo_id[index] > 0:
-        new_con_boo_id = booth_conn.object.get(B1 = con_boo_id[index])
-        iteration_all_layers(con_boo_id[index], interests, route_info, new_con_boo_id)
+    if max_in_3_layer.path[-1] == -1:
+        return max_in_3_layer
     else:
-        return route_info.path
+        nconboo = booth_conn.objects.filter(B1=max_in_3_layer.path[-1])
+        new_con_boo_id = get_conn_id(nconboo)
+        final_route = iteration_all_layers(interests,  max_in_3_layer, new_con_boo_id)
+        return final_route
+
+def iteration_3_layers(interests,route_info,con_boo_id):
+    for booth in list(con_boo_id):
+        booth_theme_grade = get_booth_grades(booth)
+        new_grade = grade_cal_3(route_info, interests,booth_theme_grade)
+        new_path = copy.copy(route_info.path)
+        new_route_info = RouteInfo(route_info.grade + new_grade, new_path)
+        new_route_info.path.append(booth)
+        conboo = booth_conn.objects.filter(B1=booth)
+        new_con_boo_id = get_conn_id(conboo)
+        if new_route_info.path[-1] == -1:
+            global all_3_route
+            all_3_route.append(new_route_info)
+        elif len(new_route_info.path) < 4:
+            iteration_3_layers(interests, new_route_info, new_con_boo_id)
+        else:
+            all_3_route.append(new_route_info)
+    return
+
+def iteration_all_layers(interests,route_info,con_boo_id):
+    grades = []
+    for booth in list(con_boo_id):
+        booth_theme_grade = get_booth_grades(booth)
+        grades.append(grade_cal(interests, booth_theme_grade))
+    max_grade = max(grades)
+    max_index = grades.index(max_grade)
+    route_info.path.append(con_boo_id[max_index])
+    if con_boo_id[max_index] > 0:
+        conboo = booth_conn.objects.filter(B1=con_boo_id[max_index])
+        new_con_boo_id = get_conn_id(conboo)
+        return iteration_all_layers(interests, route_info, new_con_boo_id)
+    else:
+        return route_info
 
 def grade_cal_3(route_info,interests,booth_grades):
     global levelWeight
-    i = route_info.path.len()
+    i = len(route_info.path)
     weight = levelWeight[i]
     grade = weight * grade_cal(interests,booth_grades)
     return grade
 
-def get_booth_grades(booth_id):
-    booth_info = boothInfo.objects.filter(booth_id = booth_id)
-    booth_grades = []
-    i = 0
-    while i < 5:
-        booth_grades[i] = booth_info[i+2]
-    return booth_grades
+def get_booth_grades(booth_Id):
+    if booth_Id == -1:
+        return [0, 0, 0, 0, 0]
+    else:
+        booth_info = boothInfo.objects.get(booth_id=booth_Id)
+        booth_grades = []
+        i = 0
+        booth_grades.append(booth_info.medical)
+        booth_grades.append(booth_info.vehicle)
+        booth_grades.append(booth_info.home)
+        booth_grades.append(booth_info.industry)
+        booth_grades.append(booth_info.wear)
+        return booth_grades
 
 def grade_cal(interests,booth_grades):
     i = 0
     grade = 0
     while i < 5:
-        grade = grade + interests[i]*booth_grades[i]
+        grade = grade + interests[i] * booth_grades[i]
+        i = i + 1
     return grade
 
 def get_max_gra():
@@ -203,5 +228,11 @@ def get_max_gra():
     max = all_3_route[0]
     for r in all_3_route:
         if r.grade > max.grade:
-            max = r.grade
+            max = r
     return max
+
+def get_conn_id(con_boo_id):
+    connid = []
+    for line in con_boo_id:
+        connid.append(int(line.B2))
+    return connid
