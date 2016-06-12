@@ -6,6 +6,7 @@ class user(models.Model):
     uid = models.CharField(max_length=10)
 
 class boothInfo(models.Model):
+    booth_id = models.AutoField(primary_key=True)
     booth = models.CharField(max_length=30,default='')
     medical = models.IntegerField(default=0)
     vehicle = models.IntegerField(default=0)
