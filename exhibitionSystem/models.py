@@ -5,6 +5,7 @@ from django.db import models
 class user(models.Model):
     uid = models.CharField(max_length=10)
 
+
 class boothInfo(models.Model):
     booth = models.CharField(max_length=30)
     coordx = models.IntegerField(default=0)

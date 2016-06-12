@@ -20,5 +20,5 @@ from exhibitionSystem import views
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'^trace/', views.update_trace),
-    url(r'^')
+#    url(r'^')
 ]
