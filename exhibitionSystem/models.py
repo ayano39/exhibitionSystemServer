@@ -3,14 +3,19 @@ from __future__ import unicode_literals
 from django.db import models
 
 class user(models.Model):
-    uid = models.CharField(max_length=10)
-
+    uid = models.CharField(max_length=10,primary_key=True)
+    frontdate = models.DateTimeField(default=0)
+    frontboothid = models.IntegerField(default=0)
 
 class boothInfo(models.Model):
-    booth = models.CharField(max_length=30)
-    coordx = models.IntegerField(default=0)
-    coordy = models.IntegerField(default=0)
-    info = models.TextField(max_length=300)
+    booth_id = models.AutoField(primary_key=True)
+    booth = models.CharField(max_length=30,default='')
+    medical = models.IntegerField(default=0)
+    vehicle = models.IntegerField(default=0)
+    home = models.IntegerField(default=0)
+    industry = models.IntegerField(default=0)
+    wear = models.IntegerField(default=0)
+    info = models.TextField(max_length=300,default='')
 
 class user_theme(models.Model):
     uid = models.CharField(max_length=10)
@@ -20,23 +25,14 @@ class user_theme(models.Model):
     industry = models.IntegerField(default=0)
     wear = models.IntegerField(default=0)
 
-    def __str__(self):
-        return self.uid
-
-class booth_theme(models.Model):
-    booth = models.CharField(max_length=30)
-    medical = models.IntegerField(default=0)
-    vehicle = models.IntegerField(default=0)
-    home = models.IntegerField(default=0)
-    industry = models.IntegerField(default=0)
-    wear = models.IntegerField(default=0)
-
+class booth_conn(models.Model):
+    B1 = models.CharField(max_length=30)
+    B2 = models.CharField(max_length=30)
 
 class user_booth(models.Model):
     uid = models.CharField(max_length=10)
-    booth = models.CharField(max_length=30)
+    booth_id = models.IntegerField()
     reached = models.IntegerField(default=0)
-    stayTime = models.IntegerField(default=0)
 
-#hh
+
 # Create your models here.
