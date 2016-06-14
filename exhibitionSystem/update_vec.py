@@ -35,7 +35,8 @@ def update_intvec(userid , boothid , nowtime):
     else:
         frontdate = user_item.frontdate
         frontboothid = user_item.frontboothid
-        print(frontboothid)
+        if(frontboothid==-1):
+            return ""
         if (frontboothid == 0): # the first click
             for i in range(5):
                 user_attr.append(1)
