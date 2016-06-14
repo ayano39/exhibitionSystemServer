@@ -30,6 +30,8 @@ def update_trace(request):
     if (userid == None or boothid == None):
     #if(userid == None or boothid == None or now_datetime == None):
         return ""
+    if boothid == -1:
+        return ""
     try:
         userBooth = user_booth.objects.get(uid = userid , booth_id = boothid);
     except Exception as ex:
