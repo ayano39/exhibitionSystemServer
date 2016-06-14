@@ -18,7 +18,7 @@ from django.contrib import admin
 from exhibitionSystem import views
 
 urlpatterns = [
-    url(r'^admin/', admin.site.urls),
+    url(r'^$', views.home_page),
     url(r'^trace/', views.update_trace),
-#    url(r'^')
+    url(r'^map_data/', views.make_map),
 ]

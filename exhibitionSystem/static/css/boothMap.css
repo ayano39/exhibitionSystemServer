@@ -2,16 +2,27 @@ svg {
   font: 10px sans-serif;
 }
 
-.group rect {
-  fill: steelblue;
+.group{
+
 }
 
-.group:hover rect {
-  fill: brown;
-}
 
 .group_row {
 
 }
 
-.group_row
+.label {
+	text-align: center;
+
+
+}
+
+.unit rect {
+	stroke: #777;
+	stroke-width: 1.5px;
+	fill: steelblue;
+}
+
+.unit rect:hover{
+	fill: brown;
+}
