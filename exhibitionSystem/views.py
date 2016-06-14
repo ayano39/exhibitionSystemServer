@@ -46,7 +46,7 @@ def update_trace(request):
         userBooth.reached = reached + 1
         userBooth.save()
     route = update_intvec(userid, boothid, now_datetime)
-    return HttpResponse(json.dump(route), content_type="application/json")
+    return HttpResponse(json.dumps(route.toJson()), content_type="application/json")
 
 
 def home_page(request):

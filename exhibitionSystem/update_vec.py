@@ -27,6 +27,7 @@ def update_intvec(userid , boothid , nowtime):
     coell = []
     per = []
     user_attr = []
+    new_user_attr = []
     try:
         user_item = user.objects.get(uid=userid)
     except Exception as ex:  #no this user
@@ -49,6 +50,8 @@ def update_intvec(userid , boothid , nowtime):
                 user_theme_item.industry = 1
                 user_theme_item.wear = 1
                 user_theme_item.save()
+                for i in range(5):
+                    new_user_attr.append(1)
                 coell = cal_coell(boothid, frontboothid)
         else: #not the first click
             #print("not the first click")
@@ -75,7 +78,7 @@ def update_intvec(userid , boothid , nowtime):
                 front_attr.append(booth_front_theme.industry)
                 front_attr.append(booth_front_theme.wear)
                 #update
-                new_user_attr = []
+
                 for i in range(5):
                     new_user_attr.append(user_attr[i] + stay_time*front_attr[i])
                 #save
