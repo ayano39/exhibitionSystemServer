@@ -115,10 +115,13 @@ levelWeight = {1:1, 2:0.5, 3:0.1}
 
 
 def make_route(booth_id,interests):
-    path = [booth_id]
+    global all_3_route
+    all_3_route = []
+    path = []
     conboo = booth_conn.objects.filter(B1=booth_id)
     con_boo_id = get_conn_id(conboo)
     npath = copy.copy(path)
+    npath.append(int(booth_id))
     route_first = RouteInfo(0, npath)
     iteration_3_layers(interests, route_first, con_boo_id)
     max_in_3_layer = get_max_gra()
@@ -127,6 +130,10 @@ def make_route(booth_id,interests):
     else:
         nconboo = booth_conn.objects.filter(B1=max_in_3_layer.path[-1])
         new_con_boo_id = get_conn_id(nconboo)
+        #final_route = RouteInfo(0,[])
+        #fr = iteration_all_layers(interests,  max_in_3_layer, new_con_boo_id)
+        #final_route.grade = fr.grade
+        #final_route.path = copy.copy(fr.path)
         final_route = iteration_all_layers(interests,  max_in_3_layer, new_con_boo_id)
         return final_route
 

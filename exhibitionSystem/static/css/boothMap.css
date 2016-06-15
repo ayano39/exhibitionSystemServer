@@ -13,16 +13,27 @@ svg {
 
 .label {
 	text-align: center;
-
-
+	text-anchor: middle;
+	font-size: 1.5em;
+	font-family: Helvetica, 'Hiragino Sans GB', 'Microsoft Yahei', '微软雅黑', Arial, sans-serif;
 }
 
 .unit rect {
 	stroke: #777;
-	stroke-width: 1.5px;
+	stroke-width: 1.3px;
 	fill: steelblue;
 }
 
 .unit rect:hover{
 	fill: brown;
+}
+
+.node {
+	fill: red;
+}
+
+.path {
+	stroke: red;
+	stroke-width: 4;
+	fill: none;
 }

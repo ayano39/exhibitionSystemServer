@@ -21,4 +21,5 @@ urlpatterns = [
     url(r'^$', views.home_page),
     url(r'^trace/', views.update_trace),
     url(r'^map_data/', views.make_map),
+    url(r'^init/', views.init),
 ]

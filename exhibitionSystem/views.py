@@ -24,11 +24,8 @@ import json
 def update_trace(request):
     userid = request.POST.get("uid")
     boothid = request.POST.get("boothId")
-    #now_datetime = request.POST.get("nowtime")
-    #now_datetime = datetime.datetime.now()
     now_datetime = timezone.now()
     if (userid == None or boothid == None):
-    #if(userid == None or boothid == None or now_datetime == None):
         return ""
     if boothid == -1:
         return ""
@@ -57,3 +54,16 @@ def home_page(request):
 
 def make_map(request):
     return HttpResponse(get_map(), content_type="application/json")
+
+@csrf_exempt
+def init(request):
+    user_id = int(request.POST.get("uid"))
+
+    user_item = user.objects.get(uid = user_id)
+    user_item.frontboothid = 0
+    user_item.save()
+
+    visit_record = user_booth.objects.filter(uid = user_id)
+    visit_record.delete()
+
+    return HttpResponse(status=200)

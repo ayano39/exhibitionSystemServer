@@ -1,14 +1,14 @@
 var map_data;
+var userId = 1;
 var width, height;
 
 function init(){
+	initUserInfo();
     initWidthAndHeight();
     
     var svg = d3.select("body").append("svg")
         .attr("width", width)
         .attr("height", height)
-      //.append("g")
-        //.attr("transform", "translate(" + margin.left + "," + margin.right + ")");
 
     d3.json("/map_data/", function(error, data){
         if (error)
@@ -47,6 +47,7 @@ function init(){
             .attr("class", "unit")
             .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"});
 
+
         var rects = units.append("rect")
             .attr("id", function(d){ return d.boothId; })
             .attr("width", function(d){ return d.width; })
@@ -59,13 +60,13 @@ function init(){
             .attr("x", function(d){ return d.width / 2 ;})
             .attr("y", function(d){ return d.height / 2 ;})
             .attr("dy", ".35em")
-            .attr("text-anchor", "end")
             .text(function(d){ 
                 if(d.boothId == -1)
                     return "出口";
                 else
                     return "第" + d.boothId + "展台"; 
             });
+
     });
 }
 
@@ -96,6 +97,10 @@ function initWidthAndHeight(){
     } else {
         height = 600 - margin.top - margin.bottom;
     }
+}
+
+function initUserInfo(){
+    $.post("/init/", { uid: userId });
 }
 
 function normObjArr(array){
@@ -161,22 +166,113 @@ function parseGroup2Cell(groups, width, height, x_pad, y_pad){
 }
 
 function visitBooth(d){
-    var userId = 1;
     var boothId = d.boothId;
-    //d3.json("/trace/")
-        //.header("Content-Type", "application/x-www-form-urlencoded")
-        //.post("uid=" + userId + "&boothId" + boothId, function(error, data){
-            //console.log(data);
-        //});
+    console.log("visit the booth:" + boothId);
     $.post("/trace/",
     {
         uid: userId,
         boothId: boothId
     },
     function(data){
-        console.log(data);
+        redrawNode(data);
+        redrawPath();
     })
 }
+7
+function redrawNode(routeList){  
+	var units = d3.select("svg")
+		.selectAll(".group_row")
+		.selectAll(".group")
+		.selectAll(".unit");
+
+	var nodes = units.selectAll(".node")
+		.data(function(d) { return checkNode(d, routeList); });
+
+	var nodeEnter = nodes.enter()
+		.append("circle")
+		.attr("class", "node")
+		.attr("cx", function(d){
+			return ($(this).siblings("rect").attr("width")) / 2;
+		})
+		.attr("cy", function(d){
+			return ($(this).siblings("rect").attr("height")) / 2;
+		})
+
+	var nodeUpdate = d3.transition(nodes)
+		//.duration(1500)
+		.attr("r", 4)
+		.style("fill-opacity", 1);
+
+	var nodeExit = d3.transition(nodes.exit())
+		.attr("r", 0)
+		.style("fill-opacity", 0)
+		.remove();
+}
+
+function checkNode(d, routeList){
+	var boothId = d.boothId
+	if(routeList.indexOf(boothId) != -1)
+		return [boothId];
+	else
+		return [];
+	
+}
+
+function redrawPath(){
+	$("path").remove();
+
+	var nodes = d3.selectAll(".node");
+	var pathData = nodes[0].map(getCoord).sort(compareNode);
+
+	console.log(pathData);
+	var line = d3.svg.line()
+		.x(function(d) { return d.x; })
+		.y(function(d) { return d.y; })
+		.interpolate("monotone");
+
+	var path = d3.select("svg").append("g")
+		.append("path")
+		.attr("class", "path")
+		.attr("d", line(pathData));
+}
+
+function getCoord(d){
+	var x = 0;
+	var y = 0;
+	var reg = /[(,)]/;
+
+	var rect = $(d).siblings("rect");
+	x += rect.attr("width") / 2;
+	y += rect.attr("height") / 2;
+
+	var unit = $(d).parent();
+	var tokens = unit.attr("transform").split(reg);
+	x += parseFloat(tokens[1]);
+	y += parseFloat(tokens[2]);
+
+	var group = unit.parent();
+	var tokens = group.attr("transform").split(reg);
+	x += parseFloat(tokens[1]);
+
+	var group_row = group.parent();
+	var tokens = group_row.attr("transform").split(reg);
+	y += parseFloat(tokens[2]);
+
+	var id = rect.attr("id");
+	id = (id == -1)? 100 : parseInt(id);
+	result = { "x" : x, "y" : y, "boothId" : id};
+	return result;
+}
+
+function compareNode(a, b){
+	if(a.boothId > b.boothId)
+		return 1;
+	else if(a.boothId < b.boothId)
+		return -1;
+	else
+		return 0;
+}
+
 
 $(document).ready(function(){
     init();
