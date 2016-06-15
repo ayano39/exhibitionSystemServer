@@ -19,21 +19,22 @@ svg {
 }
 
 .unit rect {
-	stroke: #777;
-	stroke-width: 1.3px;
-	fill: steelblue;
+	stroke: #c7c7c7;
+	stroke-width: 2;
+	fill-opacity: 0.8;
 }
 
 .unit rect:hover{
-	fill: brown;
+	fill-opacity: 1;
+	stroke:  #7f7f7f;
 }
 
 .node {
-	fill: red;
+	fill: #636363;
 }
 
 .path {
-	stroke: red;
+	stroke: #636363;
 	stroke-width: 4;
 	fill: none;
 }

@@ -45,15 +45,16 @@ function init(){
             .data(function(d) { return parseGroup2Cell(d.group, col_width, row_height, d.x_pad*0.1*col_width, d.y_pad*0.1*row_height); })
           .enter().append("g")
             .attr("class", "unit")
-            .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"});
+            .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"})
 
+        var color_scaler = d3.scale.ordinal().range(["#aec7e8", "#ffbb78", "#98df8a", "#c5b0d5", "#f7b6d2", "#c7c7c7", "#ffffff"])
 
         var rects = units.append("rect")
             .attr("id", function(d){ return d.boothId; })
             .attr("width", function(d){ return d.width; })
             .attr("height", function(d){ return d.height; })
+            .attr("fill", function(d){ return color_scaler(d.theme); })
             .on("click", visitBooth);
-            //.attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"});
 
         var text = units.append("text")
             .attr("class", "label")
@@ -120,6 +121,7 @@ function parseGroup2Cell(groups, width, height, x_pad, y_pad){
         var group = groups[i];
 
         resultCell.boothId = group["boothId"];
+        resultCell.theme = group["theme"];
         var cells = group["cell"];
 
         var up_left = false;
@@ -200,7 +202,7 @@ function redrawNode(routeList){
 
 	var nodeUpdate = d3.transition(nodes)
 		//.duration(1500)
-		.attr("r", 4)
+		.attr("r", 7)
 		.style("fill-opacity", 1);
 
 	var nodeExit = d3.transition(nodes.exit())
@@ -228,7 +230,7 @@ function redrawPath(){
 	var line = d3.svg.line()
 		.x(function(d) { return d.x; })
 		.y(function(d) { return d.y; })
-		.interpolate("monotone");
+		.interpolate("linear");//monotone
 
 	var path = d3.select("svg").append("g")
 		.append("path")
